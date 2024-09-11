@@ -1,9 +1,9 @@
-# MouseMoverPage
+# MouseMover
 
-MouseMoverPage is a simple desktop application designed to automatically move the mouse pointer at regular intervals. This tool is useful for keeping your computer awake or preventing idle mode.
+MouseMover is a simple desktop application designed to automatically move the mouse pointer at regular intervals. This tool is useful for keeping your computer awake or preventing idle mode.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/974ac5be-0c8b-4c85-805d-e731d361771c" alt="MouseMoverPage Screenshot"/>
+  <img src="https://github.com/user-attachments/assets/974ac5be-0c8b-4c85-805d-e731d361771c" alt="MouseMover Screenshot"/>
 </p>
 
 ## Features
@@ -38,8 +38,8 @@ MouseMoverPage is a simple desktop application designed to automatically move th
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/MouseMoverPage.git
-    cd MouseMoverPage
+    git clone https://github.com/yourusername/MouseMover.git
+    cd MouseMover
     ```
 
 2. Install the required dependencies:
