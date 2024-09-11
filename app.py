@@ -1,54 +1,117 @@
-from flask import Flask, render_template, jsonify
+import sys
 import pyautogui as pag
 import threading
 import time
-from pynput import keyboard
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtCore import Qt
+import keyboard
 
-app = Flask(__name__)
+class MouseMoverApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        
+        self.bot_running = False
+        self.init_ui()
+        self.setWindowTitle("Mouse Mover Bot")
+        self.setGeometry(100, 100, 400, 300)
 
-bot_running = False
-stop_key = keyboard.KeyCode(char='q')
+    def init_ui(self):
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        self.layout = QVBoxLayout()
+        self.central_widget.setLayout(self.layout)
+        
+        self.setStyleSheet("""
+            QMainWindow {
+                font-family: 'Courier New', Courier, monospace;
+                background-color: #000000;
+            }
+            QLabel {
+                color: #00FF00;
+                font-size: 18px;
+                text-align: center;
+            }
+            QWidget {
+                background-color: #000000;
+                border: 2px solid #00FF00;
+                border-radius: 12px;
+                padding: 20px;
+                width: 350px;
+                margin: 0 auto;
+            }
+            QPushButton {
+                background-color: #00FF00;
+                border: none;
+                color: #000000;
+                padding: 12px 24px;
+                font-size: 16px;
+                margin: 10px;
+                border-radius: 6px;
+            }
+            QPushButton:hover {
+                background-color: #00CC00;
+            }
+            QPushButton:pressed {
+                background-color: #009900;
+            }
+            QLabel.notice {
+                margin-top: 20px;
+                color: #00FF00;
+                font-size: 16px;
+            }
+        """)
+        
+        self.label = QLabel("Mouse Mover Bot")
+        self.label.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.label)
+        
+        self.start_button = QPushButton("Start Bot")
+        self.start_button.clicked.connect(self.start_bot)
+        self.layout.addWidget(self.start_button)
+        
+        self.stop_button = QPushButton('Stop Bot or press "q"')
+        self.stop_button.clicked.connect(self.stop_bot)
+        self.layout.addWidget(self.stop_button)
+        
+        self.notice_label = QLabel("")
+        self.notice_label.setObjectName("notice")
+        self.layout.addWidget(self.notice_label)
 
-def on_press(key):
-    global bot_running
-    if key == stop_key:
-        bot_running = False
+    def start_bot(self):
+        if not self.bot_running:
+            self.bot_running = True
+            self.notice_label.setText("Bot is running...")
+            self.thread = threading.Thread(target=self.move_mouse)
+            self.thread.start()
 
-def move_mouse():
-    global bot_running
-    x, y = pag.position()
-    while bot_running:
-        x += 200
-        y += 200
-        pag.moveTo(x, y)
-        if x > 1900:
-            x = 0
-        if y > 1000:
-            y = 0
-        time.sleep(2)
+    def stop_bot(self):
+        if self.bot_running:
+            self.bot_running = False
+            self.notice_label.setText("Bot stopped.")
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+    def move_mouse(self):
+        x, y = pag.position()
+        while self.bot_running:
+            x += 200
+            y += 200
+            pag.moveTo(x, y)
+            if x > 1900:
+                x = 0
+            if y > 1000:
+                y = 0
+            time.sleep(2)
 
-@app.route('/start_bot', methods=['POST'])
-def start_bot():
-    global bot_running
-    if not bot_running:
-        bot_running = True
-        threading.Thread(target=move_mouse).start()
-    return jsonify({'status': 'started'})
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Q:
+            self.stop_bot()
+        super().keyPressEvent(event)
 
-@app.route('/stop_bot', methods=['POST'])
-def stop_bot():
-    global bot_running
-    bot_running = False
-    return jsonify({'status': 'stopped'})
+def stop_bot_on_q():
+    app = QApplication(sys.argv)
+    main_window = MouseMoverApp()
+    main_window.show()
+    keyboard.on_press_key("q", lambda _: main_window.stop_bot())
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    listener = keyboard.Listener(on_press=on_press)
-    listener.start()
-    try:
-        app.run(debug=True)
-    finally:
-        listener.stop()
+    stop_bot_on_q()
