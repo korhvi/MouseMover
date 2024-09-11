@@ -1,4 +1,0 @@
-Flask
-pyautogui
-pynput
-werkzeug
