@@ -1,2 +1,4 @@
 Flask
+pyautogui
+pynput
 werkzeug
